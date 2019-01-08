@@ -1,0 +1,3 @@
+[submodule "src/main/java/frc4904/standard"]
+	path = src/main/java/frc4904/standard
+	url = https://github.com/RoboticsTeam4904/standard

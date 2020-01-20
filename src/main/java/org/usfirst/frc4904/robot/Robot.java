@@ -4,7 +4,7 @@
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project. */
 /*----------------------------------------------------------------------------*/
-package frc4904.robot;
+package org.usfirst.frc4904.robot;
 
 
 import edu.wpi.first.wpilibj.Joystick;

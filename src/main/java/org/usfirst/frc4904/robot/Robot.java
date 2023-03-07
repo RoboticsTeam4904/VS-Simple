@@ -7,8 +7,28 @@
 package org.usfirst.frc4904.robot;
 
 
+import org.usfirst.frc4904.standard.CommandRobotBase;
+import org.usfirst.frc4904.standard.LogKitten;
+import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.CANTalonFX;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.TalonMotorController;
+import org.usfirst.frc4904.standard.subsystems.chassis.WestCoastDrive;
+import org.usfirst.frc4904.standard.subsystems.motor.TalonMotorSubsystem;
+
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.CANTalonFX;
+import org.usfirst.frc4904.standard.subsystems.chassis.WestCoastDrive;
+import org.usfirst.frc4904.standard.subsystems.motor.TalonMotorSubsystem;
+
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
+import edu.wpi.first.math.controller.DifferentialDriveWheelVoltages;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -20,60 +40,75 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class Robot extends TimedRobot {
-  private final DifferentialDrive m_robotDrive = new DifferentialDrive(new PWMVictorSPX(0), new PWMVictorSPX(1));
-  private final Joystick m_stick = new Joystick(0);
-  private final Timer m_timer = new Timer();
+public class Robot extends CommandRobotBase {
+  public static CommandXboxController controller;
+  public static TalonMotorSubsystem leftMotors;
+  public static TalonMotorSubsystem rightMotors;
+  public static WestCoastDrive<TalonMotorController> drive;
 
-  /**
-   * This function is run when the robot is first started up and should be
-   * used for any initialization code.
-   */
   @Override
-  public void robotInit() {
+  public void initialize() {
+    Robot.controller = new CommandXboxController(1);
+    Robot.leftMotors  = new TalonMotorSubsystem("left  motors", NeutralMode.Brake, 10, new CANTalonFX(1, InvertType.InvertMotorOutput), new CANTalonFX(2, InvertType.FollowMaster));
+    Robot.rightMotors = new TalonMotorSubsystem("right motors", NeutralMode.Brake, 10, new CANTalonFX(3, InvertType.None), new CANTalonFX(4, InvertType.FollowMaster));
+    Robot.drive = new WestCoastDrive<TalonMotorController>(Units.inchesToMeters(19.5), 11, Units.inchesToMeters(5), leftMotors, rightMotors);
+
+    Robot.leftMotors.configPIDF(0.1, 0., 0., 0., 100, 1, null);
+    Robot.rightMotors.configPIDF(0.1, 0., 0., 0., 100, 1, null);
   }
 
-  /**
-   * This function is run once each time the robot enters autonomous mode.
-   */
   @Override
-  public void autonomousInit() {
-    m_timer.reset();
-    m_timer.start();
+  public void teleopInitialize() {
+    // TODO Auto-generated method stub
   }
 
-  /**
-   * This function is called periodically during autonomous.
-   */
   @Override
-  public void autonomousPeriodic() {
-    // Drive for 2 seconds
-    if (m_timer.get() < 2.0) {
-      m_robotDrive.arcadeDrive(0.5, 0.0); // drive forwards half speed
-    } else {
-      m_robotDrive.stopMotor(); // stop robot
-    }
+  public void teleopExecute() {
+    // TODO Auto-generated method stub
   }
 
-  /**
-   * This function is called once each time the robot enters teleoperated mode.
-   */
   @Override
-  public void teleopInit() {
+  public void autonomousInitialize() {
+    // TODO Auto-generated method stub
   }
 
-  /**
-   * This function is called periodically during teleoperated mode.
-   */
   @Override
-  public void teleopPeriodic() {
-    m_robotDrive.arcadeDrive(m_stick.getY(), m_stick.getX());
+  public void autonomousExecute() {
+    // TODO Auto-generated method stub
   }
 
-  /**
-   * This function is called periodically during test mode.
-   */
   @Override
-  public void testPeriodic() {
+  public void disabledInitialize() {
+    // TODO Auto-generated method stub
   }
+
+  @Override
+  public void disabledExecute() {
+    // TODO Auto-generated method stub
+  }
+
+  @Override
+  public void testInitialize() {
+    // drive.c_controlChassisVelocity(() -> new ChassisSpeeds(
+    //   (controller.getRightTriggerAxis() - controller.getLeftTriggerAxis())*10,
+    //   0, 
+    //   controller.getLeftX()*Math.PI/2
+    // )).schedule();
+  }
+
+  @Override
+  public void testExecute() {
+    // drive.setWheelVoltages(new DifferentialDriveWheelVoltages((controller.getRightTriggerAxis() - controller.getLeftTriggerAxis())*10, 0, controller.getRightX()*Math.PI/2));
+    drive.setWheelVoltages(new DifferentialDriveWheelVoltages(
+      (controller.getRightTriggerAxis() - controller.getLeftTriggerAxis() + controller.getLeftX())*10,
+      (controller.getRightTriggerAxis() - controller.getLeftTriggerAxis() - controller.getLeftX())*10
+      ));
+    LogKitten.wtf(controller.getRightTriggerAxis());
+  }
+
+  @Override
+  public void alwaysExecute() {
+    // TODO Auto-generated method stub
+  }
+
 }
